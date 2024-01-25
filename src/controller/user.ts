@@ -10,3 +10,5 @@ router.get(
     res.json(users);
   }
 );
+
+export default router;
