@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../config/prisma";
-import { convertBigInt } from "../utils/converter";
 
 const router = Router();
 
@@ -10,12 +9,12 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   const usersCount = await prisma.user.count();
   console.log(`Number of users: ${usersCount}`);
 
-  res.json(convertBigInt(users));
+  res.json(users);
 });
 
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, username, password, role } = convertBigInt(req.body);
+    const { email, username, password, role } = req.body;
 
     const newUser = await prisma.user.create({
       data: {
@@ -28,7 +27,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     res.status(202).json(newUser);
   } catch (err) {
-    console.error(err, "<<<<<<<<");
+    console.error(err);
   }
 });
 
