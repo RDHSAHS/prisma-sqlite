@@ -1,7 +1,6 @@
-import prisma from "./config/prisma";
 import express from "express";
 import * as dotenv from "dotenv";
-// import root from "./routes";
+import root from "./routes";
 
 async function main() {
   dotenv.config();
@@ -12,10 +11,7 @@ async function main() {
   app.use(express.urlencoded({ extended: true, limit: "3mb" }));
 
   //routes
-  // app.get("/users", async (req, res) => {
-  //   const users = await prisma.user.findMany();
-  //   res.json(users);
-  // });
+  app.use(root);
 
   app
     .listen(process.env.PORT, () => {
