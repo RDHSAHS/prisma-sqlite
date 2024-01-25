@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
+// import { param, query, body, validationResult } from "express-validator";
 import prisma from "../config/prisma";
 
 const router = Router();
@@ -11,6 +12,24 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 
   res.json(users);
 });
+
+router.get(
+  "/:docid",
+  // param("docid").isUUID(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { docid } = req.params;
+    const user = await prisma.user.findUnique({
+      where: {
+        docid,
+      },
+      include: {
+        posts: true,
+      },
+    });
+
+    res.status(200).json(user);
+  }
+);
 
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
