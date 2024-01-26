@@ -45,10 +45,10 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     const { id, docid, ...sanitizedPost } = newPost;
 
-    const resp = `New post created`;
+    const message = `New post created`;
 
     res.status(202).json({
-      message: resp,
+      message,
       data: sanitizedPost,
     });
   } catch (err) {
@@ -67,12 +67,21 @@ router.delete(
       },
     });
 
-    const resp = `Post with id ${id} deleted`;
+    const message = `Post with id ${id} deleted`;
 
     if (!delPost) return res.status(404).json({ error: "Post not found" });
 
-    res.status(200).json({ message: resp, data: delPost });
+    res.status(200).json({ message, data: delPost });
   }
 );
+
+//DELETE ALL POSTS
+router.delete("/", async (req: Request, res: Response, next: NextFunction) => {
+  await prisma.post.deleteMany();
+
+  const message = `All Posts are deleted`;
+
+  res.status(200).json({ message });
+});
 
 export default router;

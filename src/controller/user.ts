@@ -57,9 +57,9 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       },
     });
 
-    const resp = `Success create new User with username: ${newUser.username}`;
+    const message = `Success create new User with username: ${newUser.username}`;
 
-    res.status(202).json({ message: resp });
+    res.status(202).json({ message });
   } catch (err) {
     console.error(err);
   }
@@ -76,14 +76,23 @@ router.delete(
       },
     });
 
-    const resp = `User with id ${id} deleted`;
+    const message = `User with id ${id} deleted`;
 
     const { password, ...sanitizedUser } = delUser;
 
     if (!delUser) return res.status(404).json({ error: "User not found" });
 
-    res.status(200).json({ message: resp, data: sanitizedUser });
+    res.status(200).json({ message, data: sanitizedUser });
   }
 );
+
+//DELETE ALL USER
+router.delete("/", async (req: Request, res: Response, next: NextFunction) => {
+  await prisma.user.deleteMany();
+
+  const message = `All User are deleted`;
+
+  res.status(200).json({ message });
+});
 
 export default router;

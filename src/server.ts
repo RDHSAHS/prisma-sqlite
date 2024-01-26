@@ -1,9 +1,11 @@
 import express from "express";
 import * as dotenv from "dotenv";
 import root from "./router";
+import { enableForeignKeys } from "./config/prisma";
 
 async function main() {
   dotenv.config();
+  enableForeignKeys();
 
   const app = express();
 
