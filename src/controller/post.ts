@@ -39,7 +39,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         title,
         content,
         published,
-        authorId,
+        author: { connect: { docid: authorId } },
       },
     });
 

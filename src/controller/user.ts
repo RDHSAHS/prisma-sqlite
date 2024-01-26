@@ -65,4 +65,25 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+//DELETE USER
+router.delete(
+  "/:id",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const delUser = await prisma.user.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    const resp = `User with id ${id} deleted`;
+
+    const { password, ...sanitizedUser } = delUser;
+
+    if (!delUser) return res.status(404).json({ error: "User not found" });
+
+    res.status(200).json({ message: resp, data: sanitizedUser });
+  }
+);
+
 export default router;
