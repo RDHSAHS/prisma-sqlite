@@ -4,22 +4,6 @@ import { hashPassword } from "../utils/auth";
 
 const router = Router();
 
-// Exclude keys from user
-// function exclude<User, Key extends keyof User>(
-//   user: User,
-//   keys: Key[]
-// ): Omit<User, Key> {
-//   const result: Record<string, unknown> = {};
-
-//   for (const k of Object.keys(user)) {
-//     if (!keys.includes(k as Key)) {
-//       result[k] = user[k];
-//     }
-//   }
-
-//   return result as Omit<User, Key>;
-// }
-
 //CODE API HERE
 //------------------------------------------------------------------------------------------------
 
@@ -94,20 +78,20 @@ router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
 
   if (!foundUser) return res.status(404).json({ error: `User not found` });
 
-  const updateData: Record<string, any> = {};
+  const updData: Record<string, any> = {};
 
-  if (email && email !== foundUser.email) updateData.email = email;
-  if (username && username !== foundUser.username)
-    updateData.username = username;
+  if (email && email !== foundUser.email) updData.email = email;
+  if (username && username !== foundUser.username) updData.username = username;
   if (password && password !== foundUser.password) {
-    updateData.password = await hashPassword(password);
+    updData.password = await hashPassword(password);
   }
 
   const updUser = await prisma.user.update({
     where: { id: Number(id) },
-    data: updateData,
+    data: updData,
     select: prismaExclude("User", ["password", "role"]),
   });
+
   const message = `User with id ${id} updated`;
 
   res.status(200).json({ message, data: updUser });
