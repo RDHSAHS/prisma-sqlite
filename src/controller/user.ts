@@ -3,23 +3,26 @@ import prisma, { prismaExclude } from "../config/prisma";
 import { hashPassword } from "../utils/auth";
 
 const router = Router();
+const excludeUser = prismaExclude("User", ["password", "role"]);
 
 //CODE API HERE
 //------------------------------------------------------------------------------------------------
 
 //GET USERS
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
-  const users = await prisma.user.findMany();
-
-  const sanitizedUsers = users.map((user) => {
-    const { password, role, ...sanitizedUsers } = user;
-    return sanitizedUsers;
+  const users = await prisma.user.findMany({
+    select: excludeUser,
   });
+
+  // const sanitizedUsers = users.map((user) => {
+  //   const { password, role, ...sanitizedUsers } = user;
+  //   return sanitizedUsers;
+  // });
 
   const userCount = await prisma.user.count();
   console.log(`Number of users: ${userCount}`);
 
-  res.json(sanitizedUsers);
+  res.json(users);
 });
 
 //GET USER BY ID
@@ -106,15 +109,16 @@ router.delete(
       where: {
         id: Number(id),
       },
+      select: excludeUser,
     });
 
     const message = `User with id ${id} deleted`;
 
-    const { password, ...sanitizedUser } = delUser;
+    // const { password, ...sanitizedUser } = delUser;
 
     if (!delUser) return res.status(404).json({ error: "User not found" });
 
-    res.status(200).json({ message, data: sanitizedUser });
+    res.status(200).json({ message, data: delUser });
   }
 );
 

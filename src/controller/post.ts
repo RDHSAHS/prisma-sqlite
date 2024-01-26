@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import prisma, { prismaExclude } from "../config/prisma";
 
 const router = Router();
+const excludePost = prismaExclude("Post", ["id", "docid"]);
 
 //CODE API HERE
 //------------------------------------------------------------------------------------------------
@@ -22,6 +23,7 @@ router.get(
       where: {
         docid,
       },
+      select: excludePost,
     });
 
     if (!post) return res.status(404).json({ error: "Post not found" });
@@ -43,15 +45,16 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         published,
         author: { connect: { docid: authorId } },
       },
+      select: excludePost,
     });
 
-    const { id, docid, ...sanitizedPost } = newPost;
+    // const { id, docid, ...sanitizedPost } = newPost;
 
     const message = `New post created`;
 
     res.status(202).json({
       message,
-      data: sanitizedPost,
+      data: newPost,
     });
   } catch (err) {
     console.error(err);
@@ -85,7 +88,7 @@ router.put(
       select: prismaExclude("Post", ["id", "docid"]),
     });
 
-    const message = `Post with id ${updData.id} updated`;
+    const message = `Post with id ${foundPost.id} updated`;
 
     res.status(200).json({ message, data: updPost });
   }
@@ -100,6 +103,7 @@ router.delete(
       where: {
         id: Number(id),
       },
+      select: excludePost,
     });
 
     const message = `Post with id ${id} deleted`;
