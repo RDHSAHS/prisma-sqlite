@@ -1,5 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../config/prisma";
+import { hashPassword } from "../utils/auth";
+import { User } from "@prisma/client";
 
 const router = Router();
 
@@ -8,10 +10,15 @@ const router = Router();
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   const users = await prisma.user.findMany();
 
+  const sanitizedUsers = users.map((user) => {
+    const { password, role, ...sanitizedUsers } = user;
+    return sanitizedUsers;
+  });
+
   const userCount = await prisma.user.count();
   console.log(`Number of users: ${userCount}`);
 
-  res.json(users);
+  res.json(sanitizedUsers);
 });
 
 //GET USER BY ID
@@ -19,7 +26,7 @@ router.get(
   "/:docid",
   async (req: Request, res: Response, next: NextFunction) => {
     const { docid } = req.params;
-    const user = await prisma.user.findUnique({
+    const user: User | null = await prisma.user.findUnique({
       where: {
         docid,
       },
@@ -28,7 +35,11 @@ router.get(
       },
     });
 
-    res.status(200).json(user);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const { password, role, ...sanitizedUser } = user;
+
+    res.status(200).json(sanitizedUser);
   }
 );
 
@@ -36,12 +47,13 @@ router.get(
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, username, password, role } = req.body;
+    const hashedPass = await hashPassword(password);
 
     const newUser = await prisma.user.create({
       data: {
         email,
         username,
-        password,
+        password: hashedPass,
         role,
       },
     });
