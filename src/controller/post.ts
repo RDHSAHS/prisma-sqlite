@@ -4,6 +4,8 @@ import prisma from "../config/prisma";
 const router = Router();
 
 //CODE API HERE
+//------------------------------------------------------------------------------------------------
+
 //GET POSTS
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   const posts = await prisma.post.findMany();
