@@ -56,4 +56,23 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+//DELETE POST
+router.delete(
+  "/:id",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const delPost = await prisma.post.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    const resp = `Post with id ${id} deleted`;
+
+    if (!delPost) return res.status(404).json({ error: "Post not found" });
+
+    res.status(200).json({ message: resp, data: delPost });
+  }
+);
+
 export default router;
