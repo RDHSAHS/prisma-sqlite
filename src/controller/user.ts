@@ -1,7 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../config/prisma";
 import { hashPassword } from "../utils/auth";
-import { User } from "@prisma/client";
 
 const router = Router();
 
@@ -26,7 +25,7 @@ router.get(
   "/:docid",
   async (req: Request, res: Response, next: NextFunction) => {
     const { docid } = req.params;
-    const user: User | null = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
         docid,
       },
