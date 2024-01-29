@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma, { prismaExclude } from "../config/prisma";
-import { hashPassword } from "../utils/auth";
+import { hashPassword } from "../utils/bcrypt";
 
 const router = Router();
 const excludeUser = prismaExclude("User", ["password", "role"]);
