@@ -30,7 +30,7 @@ router.post(
 
       if (!formData.isEmpty()) {
         return res.json({
-          message: "Error from validation",
+          message: "Error Form Validation",
           formData,
         });
       }
@@ -68,10 +68,10 @@ router.post(
       const message = `Success create new User with username: ${newUser.username}`;
 
       res.status(201).json({ message });
-    } catch (err) {
+    } catch (err: any) {
       return res.json({
         message: "Something went wrong",
-        err,
+        err: err.toString(),
       });
     }
   }
@@ -87,7 +87,7 @@ router.post(
 
       if (!formData.isEmpty()) {
         return res.json({
-          message: "Error from validator",
+          message: "Error Form Validation",
           formData,
         });
       }
@@ -135,11 +135,50 @@ router.post(
         message: "Login success",
         data: tokenData,
       });
-    } catch (err) {
+    } catch (err: any) {
       return res.json({
         message: "Something went wrong",
-        err,
+        err: err.toString(),
       });
     }
   }
 );
+
+//USER INFO
+router.get("/info", async (req: Request, res: Response) => {
+  try {
+    const formData = validationResult(req);
+
+    if (!formData.isEmpty()) {
+      return res.json({
+        message: "Error Form Validation",
+      });
+    }
+
+    const userToken: any = parseJWT(req.headers.authorization as string);
+
+    const userSession = await sessionRepository.fetch(userToken.docid);
+
+    if (!userSession.tokenData) {
+      return res.json({
+        message: "User not found",
+      });
+    }
+
+    const userData = await prisma.user.findUnique({
+      where: {
+        docid: userToken.docid,
+      },
+      select: excludeUser,
+    });
+
+    return res.status(200).json({
+      data: userData,
+    });
+  } catch (err: any) {
+    res.json({
+      message: "Something went wrong",
+      err: err.toString(),
+    });
+  }
+});

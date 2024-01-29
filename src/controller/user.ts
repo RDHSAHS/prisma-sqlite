@@ -66,7 +66,7 @@ router.put("/:id", async (req: Request, res: Response) => {
   const updUser = await prisma.user.update({
     where: { id: Number(id) },
     data: updData,
-    select: prismaExclude("User", ["password", "role"]),
+    select: excludeUser,
   });
 
   const message = `User with id ${id} updated`;
