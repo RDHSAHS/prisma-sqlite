@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { check, checkSchema, validationResult } from "express-validator";
+import { checkSchema, validationResult } from "express-validator";
 import { prisma, prismaExclude } from "../config";
 import {
   RegisterAuthSchema,
@@ -175,6 +175,39 @@ router.get("/info", async (req: Request, res: Response) => {
     return res.status(200).json({
       data: userData,
     });
+  } catch (err: any) {
+    res.json({
+      message: "Something went wrong",
+      err: err.toString(),
+    });
+  }
+});
+
+//LOGOUT
+router.get("/logout", async (req: Request, res: Response) => {
+  try {
+    const formData = validationResult(req);
+
+    if (!formData.isEmpty()) {
+      return res.json({
+        message: "Error Form Validation",
+      });
+    }
+
+    const userToken: any = parseJWT(req.headers.authorization as string);
+
+    const userSession = await sessionRepository.fetch(userToken.docid);
+
+    if (!userSession.tokenData) {
+      return res.status(400).json({
+        message: "User already logout",
+        formData,
+      });
+    }
+
+    await sessionRepository.remove(userToken.docid);
+
+    return res.status(200).json({ message: "Logout success" });
   } catch (err: any) {
     res.json({
       message: "Something went wrong",
