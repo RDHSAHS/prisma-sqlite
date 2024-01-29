@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
-import prisma, { prismaExclude } from "../config/prisma";
-import { hashPassword } from "../utils/bcrypt";
+import { prisma, prismaExclude } from "../config/prisma";
+import { Helper, hashPassword } from "../utils";
 
 const router = Router();
 const excludeUser = prismaExclude("User", ["password", "role"]);
@@ -46,29 +46,6 @@ router.get(
     res.status(200).json(sanitizedUser);
   }
 );
-
-//POST USER
-router.post("/", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { email, username, password, role } = req.body;
-    const hashedPass = await hashPassword(password);
-
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        username,
-        password: hashedPass,
-        role,
-      },
-    });
-
-    const message = `Success create new User with username: ${newUser.username}`;
-
-    res.status(202).json({ message });
-  } catch (err) {
-    console.error(err);
-  }
-});
 
 //PUT USER
 router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {

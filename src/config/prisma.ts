@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 
 export async function enableForeignKeys() {
   try {
@@ -34,5 +34,3 @@ export function prismaExclude<T extends Entity, K extends Keys<T>>(
   }
   return result;
 }
-
-export default prisma;

@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import prisma, { prismaExclude } from "../config/prisma";
+import { prisma, prismaExclude } from "../config/prisma";
 
 const router = Router();
 const excludePost = prismaExclude("Post", ["id", "docid"]);
