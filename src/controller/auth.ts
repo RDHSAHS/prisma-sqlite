@@ -215,3 +215,19 @@ router.get("/logout", async (req: Request, res: Response) => {
     });
   }
 });
+
+//REFRESH AUTH
+router.post("/refresh-auth", async (req: Request, res: Response) => {
+  try {
+    res.json({
+      message: "From Redis",
+    });
+  } catch (err: any) {
+    res.json({
+      message: "Something went wrong",
+      err: err.toString(),
+    });
+  }
+});
+
+export default router;
