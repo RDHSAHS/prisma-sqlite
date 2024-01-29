@@ -1,5 +1,5 @@
-import { Router, Request, Response, NextFunction } from "express";
-import { prisma, prismaExclude } from "../config/prisma";
+import { Router, Request, Response } from "express";
+import { prisma, prismaExclude } from "../config";
 
 const router = Router();
 const excludePost = prismaExclude("Post", ["id", "docid"]);
@@ -8,34 +8,31 @@ const excludePost = prismaExclude("Post", ["id", "docid"]);
 //------------------------------------------------------------------------------------------------
 
 //GET POSTS
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response) => {
   const posts = await prisma.post.findMany();
 
   res.json(posts);
 });
 
 //GET POST BY ID
-router.get(
-  "/:docid",
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { docid } = req.params;
-    const post = await prisma.post.findUnique({
-      where: {
-        docid,
-      },
-      select: excludePost,
-    });
+router.get("/:docid", async (req: Request, res: Response) => {
+  const { docid } = req.params;
+  const post = await prisma.post.findUnique({
+    where: {
+      docid,
+    },
+    select: excludePost,
+  });
 
-    if (!post) return res.status(404).json({ error: "Post not found" });
+  if (!post) return res.status(404).json({ error: "Post not found" });
 
-    res.status(200).json(post);
-  }
-);
+  res.status(200).json(post);
+});
 
 //GET POSTS BY USER ID
 
 //POST POST
-router.post("/", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/", async (req: Request, res: Response) => {
   try {
     const { title, content, published, authorId } = req.body;
     const newPost = await prisma.post.create({
@@ -62,60 +59,54 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 //PUT POST
-router.put(
-  "/:docid",
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { docid } = req.params;
-    const { title, content, published } = req.body;
+router.put("/:docid", async (req: Request, res: Response) => {
+  const { docid } = req.params;
+  const { title, content, published } = req.body;
 
-    const foundPost = await prisma.post.findUnique({
-      where: { docid },
-    });
+  const foundPost = await prisma.post.findUnique({
+    where: { docid },
+  });
 
-    if (!foundPost) return res.status(404).json({ error: `Post not found` });
+  if (!foundPost) return res.status(404).json({ error: `Post not found` });
 
-    const updData: Record<string, any> = {};
+  const updData: Record<string, any> = {};
 
-    if (title && title !== foundPost.title) updData.title = title;
-    if (content && content !== foundPost.content) updData.content = content;
-    if (published && published !== foundPost.published) {
-      updData.published = published;
-    }
-
-    const updPost = await prisma.post.update({
-      where: { docid },
-      data: updData,
-      select: prismaExclude("Post", ["id", "docid"]),
-    });
-
-    const message = `Post with id ${foundPost.id} updated`;
-
-    res.status(200).json({ message, data: updPost });
+  if (title && title !== foundPost.title) updData.title = title;
+  if (content && content !== foundPost.content) updData.content = content;
+  if (published && published !== foundPost.published) {
+    updData.published = published;
   }
-);
+
+  const updPost = await prisma.post.update({
+    where: { docid },
+    data: updData,
+    select: prismaExclude("Post", ["id", "docid"]),
+  });
+
+  const message = `Post with id ${foundPost.id} updated`;
+
+  res.status(200).json({ message, data: updPost });
+});
 
 //DELETE POST
-router.delete(
-  "/:id",
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-    const delPost = await prisma.post.delete({
-      where: {
-        id: Number(id),
-      },
-      select: excludePost,
-    });
+router.delete("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const delPost = await prisma.post.delete({
+    where: {
+      id: Number(id),
+    },
+    select: excludePost,
+  });
 
-    const message = `Post with id ${id} deleted`;
+  const message = `Post with id ${id} deleted`;
 
-    if (!delPost) return res.status(404).json({ error: "Post not found" });
+  if (!delPost) return res.status(404).json({ error: "Post not found" });
 
-    res.status(200).json({ message, data: delPost });
-  }
-);
+  res.status(200).json({ message, data: delPost });
+});
 
 //DELETE ALL POSTS
-router.delete("/", async (req: Request, res: Response, next: NextFunction) => {
+router.delete("/", async (req: Request, res: Response) => {
   await prisma.post.deleteMany();
 
   const message = `All Posts are deleted`;

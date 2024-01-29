@@ -1,6 +1,6 @@
-import { Router, Request, Response, NextFunction } from "express";
-import { prisma, prismaExclude } from "../config/prisma";
-import { Helper, hashPassword } from "../utils";
+import { Router, Request, Response } from "express";
+import { prisma, prismaExclude } from "../config";
+import { hashPassword } from "../utils";
 
 const router = Router();
 const excludeUser = prismaExclude("User", ["password", "role"]);
@@ -9,7 +9,7 @@ const excludeUser = prismaExclude("User", ["password", "role"]);
 //------------------------------------------------------------------------------------------------
 
 //GET USERS
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/", async (req: Request, res: Response) => {
   const users = await prisma.user.findMany({
     select: excludeUser,
   });
@@ -26,29 +26,26 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 //GET USER BY ID
-router.get(
-  "/:docid",
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { docid } = req.params;
-    const user = await prisma.user.findUnique({
-      where: {
-        docid,
-      },
-      include: {
-        posts: true,
-      },
-    });
+router.get("/:docid", async (req: Request, res: Response) => {
+  const { docid } = req.params;
+  const user = await prisma.user.findUnique({
+    where: {
+      docid,
+    },
+    include: {
+      posts: true,
+    },
+  });
 
-    if (!user) return res.status(404).json({ error: "User not found" });
+  if (!user) return res.status(404).json({ error: "User not found" });
 
-    const { password, role, ...sanitizedUser } = user;
+  const { password, role, ...sanitizedUser } = user;
 
-    res.status(200).json(sanitizedUser);
-  }
-);
+  res.status(200).json(sanitizedUser);
+});
 
 //PUT USER
-router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.put("/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
   const { email, username, password } = req.body;
 
@@ -78,29 +75,26 @@ router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 //DELETE USER
-router.delete(
-  "/:id",
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-    const delUser = await prisma.user.delete({
-      where: {
-        id: Number(id),
-      },
-      select: excludeUser,
-    });
+router.delete("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const delUser = await prisma.user.delete({
+    where: {
+      id: Number(id),
+    },
+    select: excludeUser,
+  });
 
-    const message = `User with id ${id} deleted`;
+  const message = `User with id ${id} deleted`;
 
-    // const { password, ...sanitizedUser } = delUser;
+  // const { password, ...sanitizedUser } = delUser;
 
-    if (!delUser) return res.status(404).json({ error: "User not found" });
+  if (!delUser) return res.status(404).json({ error: "User not found" });
 
-    res.status(200).json({ message, data: delUser });
-  }
-);
+  res.status(200).json({ message, data: delUser });
+});
 
 //DELETE ALL USER
-router.delete("/", async (req: Request, res: Response, next: NextFunction) => {
+router.delete("/", async (req: Request, res: Response) => {
   await prisma.user.deleteMany();
 
   const message = `All User are deleted`;
