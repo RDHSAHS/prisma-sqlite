@@ -3,7 +3,7 @@ import express from "express";
 const router = express.Router();
 
 import auth from "../controller/auth";
-router.unsubscribe("/auth", auth);
+router.use("/auth", auth);
 
 import users from "../controller/user";
 router.use("/users", users);
