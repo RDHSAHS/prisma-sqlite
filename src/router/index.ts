@@ -11,4 +11,7 @@ router.use("/users", users);
 import posts from "../controller/post";
 router.use("/posts", posts);
 
+import amqp from "../controller/rabbitmq";
+router.use("/amqp", amqp);
+
 export default router;

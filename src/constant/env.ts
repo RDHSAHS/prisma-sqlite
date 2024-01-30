@@ -8,6 +8,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string(),
   REDIS_URL: z.string(),
   ACCESS_TOKEN: z.string(),
+  AMQP_URL: z.string(),
 });
 
 export const ENV = envSchema.parse(process.env);
